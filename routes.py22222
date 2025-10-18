@@ -1,0 +1,116 @@
+from flask import redirect, url_for, flash, request, render_template_string
+from flask_login import current_user, login_user
+from fontTools.misc.cython import returns
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from app import app, User, db
+
+
+@app.route('/')
+@app.route('/index')
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists')
+            return redirect(url_for('register'))
+
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('You are now registered!')
+        return redirect(url_for('login'))
+
+    return render_template_string('''
+    <!DOCTYPE html>
+        <html>
+        <head><title>Register</title></head>
+        <body>
+            <h2>Register</h2>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            <form method="post">
+                Username: <input type="text" name="username" required><br><br>
+                Password: <input type="password" name="password" required><br><br>
+                <input type="submit" value="Register">
+            </form>
+            <p><a href="{{ url_for('login') }}">Already have an account? Login</a></p>
+        </body>
+        </html>
+    
+    ''')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('/home'))
+        else:
+            flash('Invalid username or password')
+    return render_template_string('''
+    
+    <!DOCTYPE html>
+    <html>
+    <head><title>Login</title></head>
+    <body>
+    <h2>Login</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        <ul>
+    {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+    Username: <input type="text" name="username" required><br><br>
+    Password: <input type="password" name="password" required><br><br>
+    <input type="submit" value="Login">
+    </form>
+    <p>Don't have a account register <a href="{{ url_for('register') }}">Register</a></p>
+    
+    ''')
+
+@app.route('/logout')
+def home():
+    return render_template_string('''
+       <!DOCTYPE html>
+    <html>
+    <head><title>Home</title></head>
+    <body>
+        <h2>Welcome, {{ current_user.username }}!</h2>
+        <p>This is your protected home page.</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </body>
+    </html> 
+    ''', current_user=current_user)
+
+
+
+if (__name__ == '__main__'):
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
+
