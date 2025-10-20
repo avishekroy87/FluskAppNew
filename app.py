@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, flash, render_template, render_template_string
+from flask import Flask, request, redirect, url_for, flash, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -82,4 +82,4 @@ def home():
 if (__name__ == '__main__'):
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    #app.run(debug=True)
