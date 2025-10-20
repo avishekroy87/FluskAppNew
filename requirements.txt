@@ -1,3 +1,12 @@
 Flask==3.0.3
 Flask-WTF==1.2.1  # For form handling
 Werkzeug==3.0.3   # Included with Flask, but explicit if needed
+click==8.1.7
+WTForms==3.0.1
+Flask-SQLAlchemy==3.1.1
+gunicorn==22.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+SQLAlchemy==2.0.29
+Werkzeug==3.0.3
