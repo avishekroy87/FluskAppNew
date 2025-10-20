@@ -1,0 +1,3 @@
+Flask==3.0.3
+Flask-WTF==1.2.1  # For form handling
+Werkzeug==3.0.3   # Included with Flask, but explicit if needed
