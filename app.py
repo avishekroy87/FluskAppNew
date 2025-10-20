@@ -1,8 +1,7 @@
-from flask import Flask, request, redirect, url_for, flash,render_template_string
+from flask import Flask, request, redirect, url_for, flash, render_template, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import render_template_string
 
 
 app = Flask(__name__)
@@ -52,31 +51,7 @@ def register():
         flash('You are now registered!')
         return redirect(url_for('login'))
 
-    return render_template_string('''
-    <!DOCTYPE html>
-        <html>
-        <head><title>Register</title></head>
-        <body>
-            <h2>Register</h2>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-            <form method="post">
-                Username: <input type="text" name="username" required><br><br>
-                Password: <input type="password" name="password" required><br><br>
-                <input type="submit" value="Register">
-            </form>
-            <p><a href="{{ url_for('login') }}">Already have an account? Login</a></p>
-        </body>
-        </html>
-
-    ''')
+    return render_template('register.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,30 +65,7 @@ def login():
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password')
-    return render_template_string('''
-    <!DOCTYPE html>
-    <html>
-    <head><title>Login</title></head>
-    <body>
-    <h2>Login</h2>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            <ul>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <form method="post">
-    Username: <input type="text" name="username" required><br><br>
-    Password: <input type="password" name="password" required><br><br>
-    <input type="submit" value="Login">
-    </form>
-    <p>Don't have a account register <a href="{{ url_for('register') }}">Register</a></p>
-
-    ''')
-
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -125,17 +77,7 @@ def logout():
 @app.route('/home')
 @login_required
 def home():
-    return render_template_string('''
-    <!DOCTYPE html>
-    <html>
-    <head><title>Home</title></head>
-    <body>
-        <h2>Welcome, {{ current_user.username }}!</h2>
-        <p>This is your protected home page.</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </body>
-    </html>
-    ''', current_user=current_user)
+    return render_template('home.html', current_user=current_user)
 
 if (__name__ == '__main__'):
     with app.app_context():
